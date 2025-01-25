@@ -57,8 +57,8 @@ Clone the repository: Open Command Prompt or PowerShell, then run:
 
 ```bash
 
-git clone https://github.com/suca19/fs-assignment-2-2024-71930/
-cd fs-assignment-2-2024-71930/
+git clone https://github.com/suca19/FinalProject-DorsetCollege/
+cd FinalProject-DorsetCollege/
 ```
 Install Python (if not already installed): Download the latest version of Python from the official website: Python Downloads.
 
@@ -71,7 +71,7 @@ python3 -m venv venv
 Activate the virtual environment:
 ```bash
 Copy code
-source venv\Scripts\activate
+source venv/bin/activate 
 ```
 Install the necessary Python dependencies: Navigate to the backend folder and install the required libraries:
 ```bash

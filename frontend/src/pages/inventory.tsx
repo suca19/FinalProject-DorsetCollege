@@ -1,13 +1,11 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import ModalContainer from '../components/ModalContainer';
+import useModal from '../hooks/useModal';
+import Modal from '../components/Modals';
+import { Product } from '../types/Product.type';
+import ProductForm from '../components/Product';
 
-interface Product {
-  id: number;
-  name: string;
-  category: string;
-  price: number;
-  stock: number;
-}
 
 const sampleProducts: Product[] = [
   { id: 1, name: 'Laptop', category: 'Electronics', price: 999.99, stock: 50 },
@@ -21,24 +19,28 @@ const Inventory: React.FC = () => {
   const [products, setProducts] = useState<Product[]>(sampleProducts);
   const [searchTerm, setSearchTerm] = useState('');
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
-  const [newProduct, setNewProduct] = useState<Omit<Product, 'id'>>({
-    name: '',
-    category: '',
-    price: 0,
-    stock: 0,
-  });
+  // const [newProduct, setNewProduct] = useState<Omit<Product, 'id'>>({
+  //   name: '',
+  //   category: '',
+  //   price: 0,
+  //   stock: 0,
+  // });
+  // Modal state
+  const { modalOpen, close, open } = useModal();
+  // Modal type
+  const modalType = 'dropIn';
 
   const filteredProducts = products.filter(product =>
     product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     product.category.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleCreateProduct = (e: React.FormEvent) => {
-    e.preventDefault();
-    const id = Math.max(...products.map(p => p.id), 0) + 1;
-    setProducts([...products, { ...newProduct, id }]);
-    setNewProduct({ name: '', category: '', price: 0, stock: 0 });
-  };
+  // const handleCreateProduct = (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   const id = Math.max(...products.map(p => p.id), 0) + 1;
+  //   setProducts([...products, { ...newProduct, id }]);
+  //   setNewProduct({ name: '', category: '', price: 0, stock: 0 });
+  // };
 
   const handleUpdateProduct = (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,6 +54,7 @@ const Inventory: React.FC = () => {
     setProducts(products.filter(p => p.id !== id));
   };
 
+  
   return (
     <div className="container mx-auto px-4 py-8">
       <motion.h1
@@ -63,53 +66,7 @@ const Inventory: React.FC = () => {
         Inventory
       </motion.h1>
 
-      {/* Create Product Form */}
-      <motion.form
-        onSubmit={handleCreateProduct}
-        className="mb-8 p-4 bg-white rounded-lg shadow"
-        initial={{ opacity: 0, y: 50 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <h2 className="text-2xl font-bold mb-4">Add New Product</h2>
-        <div className="grid grid-cols-2 gap-4">
-          <input
-            type="text"
-            placeholder="Name"
-            className="p-2 border rounded"
-            value={newProduct.name}
-            onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
-            required
-          />
-          <input
-            type="text"
-            placeholder="Category"
-            className="p-2 border rounded"
-            value={newProduct.category}
-            onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}
-            required
-          />
-          <input
-            type="number"
-            placeholder="Price"
-            className="p-2 border rounded"
-            value={newProduct.price}
-            onChange={(e) => setNewProduct({ ...newProduct, price: parseFloat(e.target.value) })}
-            required
-          />
-          <input
-            type="number"
-            placeholder="Stock"
-            className="p-2 border rounded"
-            value={newProduct.stock}
-            onChange={(e) => setNewProduct({ ...newProduct, stock: parseInt(e.target.value) })}
-            required
-          />
-        </div>
-        <button type="submit" className="mt-4 bg-primary-500 text-white p-2 rounded hover:bg-primary-600">
-          Add Product
-        </button>
-      </motion.form>
+      
 
       {/* Search Input */}
       <motion.div
@@ -126,6 +83,27 @@ const Inventory: React.FC = () => {
           onChange={(e) => setSearchTerm(e.target.value)}
         />
       </motion.div>
+
+    <motion.div className="mb-6">
+    <motion.button
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          className="mt-4  py-2 px-4  bg-primary-500 text-white p-2 rounded font-bold hover:bg-primary-600"
+          onClick={open}
+        >
+          Add
+        </motion.button>
+    </motion.div>
+      
+        {modalOpen && (
+        <ModalContainer>
+        
+          <Modal text={'Add New Product'} type={modalType} handleClose={close}>
+            <ProductForm productList={products} setProductList={setProducts} handleClose={close}/>
+            </Modal>
+        
+      </ModalContainer>
+      )}
 
       {/* Product Table */}
       <motion.div
@@ -242,9 +220,11 @@ const Inventory: React.FC = () => {
           </motion.form>
         </motion.div>
       )}
+      
     </div>
   );
 };
+
 
 export default Inventory;
 
