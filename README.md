@@ -52,11 +52,10 @@ Before you begin, ensure you have the following installed:
 
 ## Installation
 `
-## Backend Setup (Django) for Windows:
+## Backend Setup (Django) for Windows
 Clone the repository: Open Command Prompt or PowerShell, then run:
 
 ```bash
-
 git clone https://github.com/suca19/FinalProject-DorsetCollege/
 cd FinalProject-DorsetCollege/
 ```
@@ -96,7 +95,8 @@ Copy code
 python manage.py runserver
 The backend server should now be running at http://127.0.0.1:8000/.
 ```
-Front-End Setup (React) for Windows:
+## Front-End Setup (React) for Windows:
+
 Install Node.js and npm: Download and install Node.js from the official website: Node.js Downloads. This will install both Node.js and npm (Node Package Manager).
 
 Navigate to the frontend directory: Open a new Command Prompt or PowerShell window, then:
@@ -131,79 +131,6 @@ Copy code
 yarn start
 ```
 
-`
-## Backend Setup (Django) for Windows:
-Clone the repository: Open Command Prompt or PowerShell, then run:
-
-```bash
-git clone https://github.com/suca19/fs-assignment-2-2024-71930/
-cd fs-assignment-2-2024-71930/
-```
-Install Python (if not already installed): Download the latest version of Python from the official website: Python Downloads.
-
-Make sure to check the box that says "Add Python to PATH" during installation.
-Create a virtual environment (recommended): In Command Prompt or PowerShell, navigate to your project directory and create a virtual environment:
-
-```bash
-python -m venv venv
-```
-Activate the virtual environment:
-
-```bash
-venv\Scripts\activate
-```
-Install the necessary Python dependencies: Navigate to the backend folder and install the required libraries:
-
-```bash
-cd backend
-pip install -r requirements.txt
-```
-Install Django and dependencies: You’ll need djangorestframework-simplejwt for authentication:
-
-```bash
-pip install djangorestframework-simplejwt
-```
-Set up the database: Run the Django migrations to create the necessary tables in the database:
-
-```bash
-python manage.py migrate
-```
-Start the Django server:
-
-```bash
-python manage.py runserver
-The backend server should now be running at http://127.0.0.1:8000/.
-```
-Front-End Setup (React) for Windows:
-Install Node.js and npm: Download and install Node.js from the official website: Node.js Downloads. This will install both Node.js and npm (Node Package Manager).
-
-Navigate to the frontend directory: Open a new Command Prompt or PowerShell window, then:
-
-```bash
-cd frontend
-Install JavaScript dependencies: You can use either npm or yarn. If you don’t have Yarn installed, use npm:
-```
-Using npm:
-
-```bash
-npm install
-```
-If you prefer Yarn (you may need to install Yarn first):
-
-```bash
-yarn install
-```
-Start the React development server:
-
-```bash
-npm start
-```
-Or, if using Yarn:
-
-```bash
-
-yarn start
-```
 ### Mac or Linux
 
 ##Backend Setup (Django)
@@ -215,26 +142,22 @@ git clone https://github.com/suca19/fs-assignment-2-2024-71930/
 ```bash
 cd fs-assignment-2-2024-71930/
 ```
+
 ## 2. Set Up the Back-End (Django)
 
 install python if you don't have it, otherwise discard these steps 
 
 ```bash
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-```
-
-```bash
 brew install python
 ```
 
-```
+```bash
 sudo apt update
 sudo apt install python3
 ```
 ```bash
 sudo apt install python3-pip
 ```
-
 
 - It's recommended to create a virtual environment to isolate your Python dependencies:
 
@@ -243,7 +166,7 @@ python3 -m venv venv
 ```
 
 ```bash
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 ```
 
 - Install the necessary Python dependencies using requirements.txt:
