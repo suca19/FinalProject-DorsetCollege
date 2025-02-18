@@ -1,130 +1,213 @@
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '../contexts/AuthContext';
-import api from '../apis/api';
+import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 
-interface UserProfile {
-  username: string;
-  email: string;
-  first_name: string;
-  last_name: string;
-}
+const ProfilePage: React.FC = () => {
+  // State for Security form
+  const [employeeId, setEmployeeId] = useState<string>('1');
+  const [email, setEmail] = useState<string>('employee01@mail.com');
+  const [password, setPassword] = useState<string>('');
+  const [passwordConfirmation, setPasswordConfirmation] = useState<string>('');
 
-const Profile: React.FC = () => {
-  const { user } = useAuth();
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [isEditing, setIsEditing] = useState(false);
-  const [editedProfile, setEditedProfile] = useState<UserProfile | null>(null);
-  const [error, setError] = useState('');
+  // State for Employee Information form
+  const [name, setName] = useState<string>('Employee A');
+  const [phone, setPhone] = useState<string>('123456780');
+  const [address, setAddress] = useState<string>('Address ED');
+  const [gender, setGender] = useState<string>('M');
+  const [dateOfJoining, setDateOfJoining] = useState<string>('01/01/2017');
 
-  useEffect(() => {
-    fetchProfile();
-  }, []);
-
-  const fetchProfile = async () => {
-    try {
-      const response = await api.get('/users/profile/');
-      setProfile(response.data);
-      setEditedProfile(response.data);
-    } catch (error) {
-      console.error('Error fetching profile:', error);
-      setError('Failed to fetch profile. Please try again.');
-    }
+  // Handle Security form submission
+  const handleSecuritySubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log('Security Form Submitted:', { employeeId, email, password, passwordConfirmation });
+    // Add API call or further logic here
   };
 
-  const handleEdit = () => {
-    setIsEditing(true);
+  // Handle Employee Information form submission
+  const handleEmployeeSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log('Employee Form Submitted:', { name, phone, address, gender, dateOfJoining });
+    // Add API call or further logic here
   };
-
-  const handleCancel = () => {
-    setIsEditing(false);
-    setEditedProfile(profile);
-  };
-
-  const handleSave = async () => {
-    try {
-      await api.put('/users/profile/', editedProfile);
-      setProfile(editedProfile);
-      setIsEditing(false);
-      setError('');
-    } catch (error) {
-      console.error('Error updating profile:', error);
-      setError('Failed to update profile. Please try again.');
-    }
-  };
-
-  if (!profile) {
-    return <div className="text-center">Loading...</div>;
-  }
 
   return (
-    <div className="max-w-md mx-auto bg-white p-8 rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-6">User Profile</h2>
-      {error && <p className="text-red-500 mb-4">{error}</p>}
-      {isEditing ? (
-        <div className="space-y-4">
-          <div>
-            <label htmlFor="username" className="block mb-1 font-medium">Username</label>
-            <input
-              type="text"
-              id="username"
-              value={editedProfile?.username}
-              onChange={(e) => setEditedProfile({ ...editedProfile!, username: e.target.value })}
-              className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <div>
-            <label htmlFor="email" className="block mb-1 font-medium">Email</label>
-            <input
-              type="email"
-              id="email"
-              value={editedProfile?.email}
-              onChange={(e) => setEditedProfile({ ...editedProfile!, email: e.target.value })}
-              className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <div>
-            <label htmlFor="first_name" className="block mb-1 font-medium">First Name</label>
-            <input
-              type="text"
-              id="first_name"
-              value={editedProfile?.first_name}
-              onChange={(e) => setEditedProfile({ ...editedProfile!, first_name: e.target.value })}
-              className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <div>
-            <label htmlFor="last_name" className="block mb-1 font-medium">Last Name</label>
-            <input
-              type="text"
-              id="last_name"
-              value={editedProfile?.last_name}
-              onChange={(e) => setEditedProfile({ ...editedProfile!, last_name: e.target.value })}
-              className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <div className="flex justify-end space-x-4">
-            <button onClick={handleCancel} className="bg-gray-300 text-gray-800 py-2 px-4 rounded hover:bg-gray-400 transition duration-200">
-              Cancel
-            </button>
-            <button onClick={handleSave} className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition duration-200">
+    <div className="container mx-auto px-4 py-8">
+      <motion.h1
+        className="text-4xl font-bold text-primary-800 mb-8"
+        initial={{ opacity: 0, y: -50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        My Profile
+      </motion.h1>
+
+      {/* Security Section */}
+      <motion.div
+        className="bg-white rounded-lg shadow-lg overflow-hidden mb-8"
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+      >
+        <h2 className="text-2xl font-bold bg-primary-600 text-white p-4">Security</h2>
+        <form onSubmit={handleSecuritySubmit} className="p-4">
+          <table className="w-full">
+            <tbody>
+              <tr className="border-b border-gray-200">
+                <td className="p-3 font-semibold">Employee ID</td>
+                <td className="p-3">
+                  <input
+                    type="text"
+                    className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    value={employeeId}
+                    onChange={(e) => setEmployeeId(e.target.value)}
+                  />
+                </td>
+              </tr>
+              <tr className="border-b border-gray-200">
+                <td className="p-3 font-semibold">Email*</td>
+                <td className="p-3">
+                  <input
+                    type="email"
+                    className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                </td>
+              </tr>
+              <tr className="border-b border-gray-200">
+                <td className="p-3 font-semibold">Password*</td>
+                <td className="p-3">
+                  <input
+                    type="password"
+                    className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    placeholder="Current or new password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                </td>
+              </tr>
+              <tr className="border-b border-gray-200">
+                <td className="p-3 font-semibold">Password again*</td>
+                <td className="p-3">
+                  <input
+                    type="password"
+                    className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    placeholder="Confirm password"
+                    value={passwordConfirmation}
+                    onChange={(e) => setPasswordConfirmation(e.target.value)}
+                  />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div className="mt-4 flex justify-end">
+            <button
+              type="submit"
+              className="bg-primary-500 text-white p-2 rounded hover:bg-primary-600"
+            >
               Save
             </button>
           </div>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          <p><strong>Username:</strong> {profile.username}</p>
-          <p><strong>Email:</strong> {profile.email}</p>
-          <p><strong>First Name:</strong> {profile.first_name}</p>
-          <p><strong>Last Name:</strong> {profile.last_name}</p>
-          <button onClick={handleEdit} className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition duration-200">
-            Edit Profile
-          </button>
-        </div>
-      )}
+        </form>
+      </motion.div>
+
+      {/* Employee Information Section */}
+      <motion.div
+        className="bg-white rounded-lg shadow-lg overflow-hidden"
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5, delay: 0.4 }}
+      >
+        <h2 className="text-2xl font-bold bg-primary-600 text-white p-4">Employee Information</h2>
+        <form onSubmit={handleEmployeeSubmit} className="p-4">
+          <table className="w-full">
+            <tbody>
+              <tr className="border-b border-gray-200">
+                <td className="p-3 font-semibold">Name*</td>
+                <td className="p-3">
+                  <input
+                    type="text"
+                    className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                  />
+                </td>
+              </tr>
+              <tr className="border-b border-gray-200">
+                <td className="p-3 font-semibold">Phone*</td>
+                <td className="p-3">
+                  <input
+                    type="text"
+                    className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                  />
+                </td>
+              </tr>
+              <tr className="border-b border-gray-200">
+                <td className="p-3 font-semibold">Address*</td>
+                <td className="p-3">
+                  <textarea
+                    className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    rows={3}
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                  ></textarea>
+                </td>
+              </tr>
+              <tr className="border-b border-gray-200">
+                <td className="p-3 font-semibold">Gender</td>
+                <td className="p-3">
+                  <div className="flex space-x-4">
+                    <label className="flex items-center">
+                      <input
+                        type="radio"
+                        name="gender"
+                        value="M"
+                        checked={gender === 'M'}
+                        onChange={() => setGender('M')}
+                        className="mr-2"
+                      />
+                      Male
+                    </label>
+                    <label className="flex items-center">
+                      <input
+                        type="radio"
+                        name="gender"
+                        value="F"
+                        checked={gender === 'F'}
+                        onChange={() => setGender('F')}
+                        className="mr-2"
+                      />
+                      Female
+                    </label>
+                  </div>
+                </td>
+              </tr>
+              <tr className="border-b border-gray-200">
+                <td className="p-3 font-semibold">Date of joining*</td>
+                <td className="p-3">
+                  <input
+                    type="text"
+                    className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    value={dateOfJoining}
+                    onChange={(e) => setDateOfJoining(e.target.value)}
+                  />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div className="mt-4 flex justify-end">
+            <button
+              type="submit"
+              className="bg-primary-500 text-white p-2 rounded hover:bg-primary-600"
+            >
+              Save
+            </button>
+          </div>
+        </form>
+      </motion.div>
     </div>
   );
 };
 
-export default Profile;
-
+export default ProfilePage;
