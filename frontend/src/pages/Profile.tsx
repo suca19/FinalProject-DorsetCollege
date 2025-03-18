@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 const ProfilePage: React.FC = () => {
   // State for Security form
   const [employeeId, setEmployeeId] = useState<string>('1');
-  const [email, setEmail] = useState<string>('employee01@mail.com');
+  const [email, setEmail] = useState<string>('employe@mail.com');
   const [password, setPassword] = useState<string>('');
   const [passwordConfirmation, setPasswordConfirmation] = useState<string>('');
 
