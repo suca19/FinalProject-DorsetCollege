@@ -1,104 +1,172 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+"use client"
+
+import type React from "react"
+import { createContext, useContext, useState, useEffect } from "react"
+import axiosInstance from "../api/axiosInstance"
 
 interface User {
-  username: string;
-  token: string;
-  role: string;
+  id: number
+  username: string
+  email: string
+  first_name: string
+  last_name: string
+  role: string
 }
 
 interface AuthContextType {
-  user: User | null;
-  isAuthenticated: boolean;
-  login: (username: string, password: string) => Promise<boolean>;
-  logout: () => void;
-  register: (username: string, email: string, password: string) => Promise<boolean>;
+  user: User | null
+  isAuthenticated: boolean
+  isLoading: boolean
+  isAdmin: boolean
+  isWorker: boolean
+  login: (email: string, password: string) => Promise<boolean>
+  logout: () => void
+  register: (username: string, email: string, password: string, firstName: string, lastName: string) => Promise<boolean>
+  updateProfile: (data: Partial<User>) => Promise<boolean>
+  hasPermission: (requiredRole: string) => boolean
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  
+  const [user, setUser] = useState<User | null>(null)
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false)
+  const [isLoading, setIsLoading] = useState<boolean>(true)
+
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      const parsedUser = JSON.parse(storedUser);
-      setUser(parsedUser);
-      setIsAuthenticated(true);
-    }
-  }, []);
+    // Check if user is already logged in
+    const checkAuth = async () => {
+      const storedUser = localStorage.getItem("user")
+      const token = localStorage.getItem("token")
 
-  const login = async (username: string, password: string) => {
-    try {
-      const response = await fetch('http://localhost:8000/api/auth/login/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username, password }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        const userData = { username, token: data.access, role: data.role }; //Added role to user data
-        setUser(userData);
-        setIsAuthenticated(true);
-        localStorage.setItem('user', JSON.stringify(userData));
-        return true;
-      } else {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || 'Login failed');
+      if (storedUser && token) {
+        try {
+          // Verify token is still valid by making a request to profile endpoint
+          const response = await axiosInstance.get("/users/profile/")
+          setUser(response.data)
+          setIsAuthenticated(true)
+        } catch (error) {
+          // Token is invalid, clear storage
+          localStorage.removeItem("user")
+          localStorage.removeItem("token")
+          localStorage.removeItem("refreshToken")
+        }
       }
-    } catch (error) {
-      console.error('Login error:', error);
-      throw error;
+
+      setIsLoading(false)
     }
-  };
+
+    checkAuth()
+  }, [])
+
+  const login = async (email: string, password: string) => {
+    try {
+      const response = await axiosInstance.post("/auth/login/", { email, password })
+      const { access, refresh, user } = response.data
+
+      setUser(user)
+      setIsAuthenticated(true)
+
+      localStorage.setItem("token", access)
+      localStorage.setItem("refreshToken", refresh)
+      localStorage.setItem("user", JSON.stringify(user))
+
+      return true
+    } catch (error) {
+      console.error("Login error:", error)
+      throw error
+    }
+  }
 
   const logout = () => {
-    setUser(null);
-    setIsAuthenticated(false);
-    localStorage.removeItem('user');
-  };
+    setUser(null)
+    setIsAuthenticated(false)
 
-  const register = async (username: string, email: string, password: string) => {
+    localStorage.removeItem("user")
+    localStorage.removeItem("token")
+    localStorage.removeItem("refreshToken")
+  }
+
+  const register = async (username: string, email: string, password: string, firstName: string, lastName: string) => {
     try {
-      const response = await fetch('http://localhost:8000/api/auth/register/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username, email, password }),
-      });
+      const response = await axiosInstance.post("/auth/register/", {
+        username,
+        email,
+        password,
+        password2: password,
+        first_name: firstName,
+        last_name: lastName,
+        role: "staff", // Default role for new registrations
+      })
 
-      if (response.ok) {
-        const data = await response.json();
-        console.log('Registration successful:', data);
-        return true;
-      } else {
-        const errorData = await response.json();
-        console.error('Registration failed:', errorData);
-        throw new Error(Object.values(errorData).flat().join(', ') || 'Registration failed');
-      }
+      return response.status === 201
     } catch (error) {
-      console.error('Registration error:', error);
-      throw error;
+      console.error("Registration error:", error)
+      throw error
     }
-  };
+  }
+
+  const updateProfile = async (data: Partial<User>) => {
+    try {
+      const response = await axiosInstance.patch("/users/profile/", data)
+
+      // Update local user data
+      setUser((prevUser) => (prevUser ? { ...prevUser, ...response.data } : null))
+
+      // Update stored user data
+      const storedUser = localStorage.getItem("user")
+      if (storedUser) {
+        const updatedUser = { ...JSON.parse(storedUser), ...response.data }
+        localStorage.setItem("user", JSON.stringify(updatedUser))
+      }
+
+      return true
+    } catch (error) {
+      console.error("Profile update error:", error)
+      throw error
+    }
+  }
+
+  // Role-based helper functions
+  const isAdmin = user?.role === "admin"
+  const isWorker = user?.role === "staff"
+
+  // Function to check if user has permission based on role
+  const hasPermission = (requiredRole: string): boolean => {
+    if (!user) return false
+
+    // Admin has access to everything
+    if (user.role === "admin") return true
+
+    // Check if user's role matches required role
+    return user.role === requiredRole
+  }
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, login, logout, register }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        isAuthenticated,
+        isLoading,
+        isAdmin,
+        isWorker,
+        login,
+        logout,
+        register,
+        updateProfile,
+        hasPermission,
+      }}
+    >
       {children}
     </AuthContext.Provider>
-  );
-};
+  )
+}
 
 export const useAuth = () => {
-  const context = useContext(AuthContext);
+  const context = useContext(AuthContext)
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider")
   }
-  return context;
-};
+  return context
+}
 

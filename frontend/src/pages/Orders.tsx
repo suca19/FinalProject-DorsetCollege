@@ -107,7 +107,7 @@ const Orders: React.FC = () => {
       <motion.div className="mb-6">
         <motion.button
           whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.8 }}
+          whileTap={{ scale: 0.9 }}
           className="mt-4 py-2 px-4 bg-primary-500 text-white p-2 rounded font-bold hover:bg-primary-600"
           onClick={open}
         >

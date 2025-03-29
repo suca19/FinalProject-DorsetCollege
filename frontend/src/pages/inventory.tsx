@@ -1,60 +1,50 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import ModalContainer from '../components/ModalContainer';
-import useModal from '../hooks/useModal';
-import Modal from '../components/Modals';
-import { Product } from '../types/Product.type';
-import ProductForm from '../components/Product';
+"use client"
 
+import type React from "react"
+import { useState } from "react"
+import { motion } from "framer-motion"
+import ModalContainer from "../components/ModalContainer"
+import useModal from "../hooks/useModal"
+import Modal from "../components/Modals"
+import type { Product } from "../types/Product.type"
+import ProductForm from "../components/Product"
+import RoleBasedComponent from "../components/RoleBasedComponent"
+import { useAuth } from "../contexts/AuthContext"
 
 const sampleProducts: Product[] = [
-  { id: 1, name: 'Laptop', category: 'Electronics', price: 999.99, stock: 50 },
-  { id: 2, name: 'Smartphone', category: 'Electronics', price: 599.99, stock: 100 },
-  { id: 3, name: 'Headphones', category: 'Accessories', price: 99.99, stock: 200 },
-  { id: 4, name: 'Desk Chair', category: 'Furniture', price: 199.99, stock: 30 },
-  { id: 5, name: 'Coffee Maker', category: 'Appliances', price: 79.99, stock: 75 },
-];
+  { id: 1, name: "Laptop", category: "Electronics", price: 999.99, stock: 50 },
+  { id: 2, name: "Smartphone", category: "Electronics", price: 599.99, stock: 100 },
+  { id: 3, name: "Headphones", category: "Accessories", price: 99.99, stock: 200 },
+  { id: 4, name: "Desk Chair", category: "Furniture", price: 199.99, stock: 30 },
+  { id: 5, name: "Coffee Maker", category: "Appliances", price: 79.99, stock: 75 },
+]
 
 const Inventory: React.FC = () => {
-  const [products, setProducts] = useState<Product[]>(sampleProducts);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
-  // const [newProduct, setNewProduct] = useState<Omit<Product, 'id'>>({
-  //   name: '',
-  //   category: '',
-  //   price: 0,
-  //   stock: 0,
-  // });
-  // Modal state
-  const { modalOpen, close, open } = useModal();
-  // Modal type
-  const modalType = 'dropIn';
+  const [products, setProducts] = useState<Product[]>(sampleProducts)
+  const [searchTerm, setSearchTerm] = useState("")
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null)
+  const { modalOpen, close, open } = useModal()
+  const modalType = "dropIn"
+  const { isAdmin } = useAuth()
 
-  const filteredProducts = products.filter(product =>
-    product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    product.category.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  // const handleCreateProduct = (e: React.FormEvent) => {
-  //   e.preventDefault();
-  //   const id = Math.max(...products.map(p => p.id), 0) + 1;
-  //   setProducts([...products, { ...newProduct, id }]);
-  //   setNewProduct({ name: '', category: '', price: 0, stock: 0 });
-  // };
+  const filteredProducts = products.filter(
+    (product) =>
+      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.category.toLowerCase().includes(searchTerm.toLowerCase()),
+  )
 
   const handleUpdateProduct = (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
     if (editingProduct) {
-      setProducts(products.map(p => p.id === editingProduct.id ? editingProduct : p));
-      setEditingProduct(null);
+      setProducts(products.map((p) => (p.id === editingProduct.id ? editingProduct : p)))
+      setEditingProduct(null)
     }
-  };
+  }
 
   const handleDeleteProduct = (id: number) => {
-    setProducts(products.filter(p => p.id !== id));
-  };
+    setProducts(products.filter((p) => p.id !== id))
+  }
 
-  
   return (
     <div className="container mx-auto px-4 py-8">
       <motion.h1
@@ -63,10 +53,8 @@ const Inventory: React.FC = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        Inventory
+        Inventario
       </motion.h1>
-
-      
 
       {/* Search Input */}
       <motion.div
@@ -77,32 +65,33 @@ const Inventory: React.FC = () => {
       >
         <input
           type="text"
-          placeholder="Search products..."
+          placeholder="Buscar productos..."
           className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
       </motion.div>
 
-    <motion.div className="mb-6">
-    <motion.button
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          className="mt-4  py-2 px-4  bg-primary-500 text-white p-2 rounded font-bold hover:bg-primary-600"
-          onClick={open}
-        >
-          Add
-        </motion.button>
-    </motion.div>
-      
-        {modalOpen && (
+      {/* Solo mostrar el botón de agregar para administradores */}
+      <RoleBasedComponent requiredRole="admin">
+        <motion.div className="mb-6">
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            className="mt-4 py-2 px-4 bg-primary-500 text-white p-2 rounded font-bold hover:bg-primary-600"
+            onClick={open}
+          >
+            Agregar Producto
+          </motion.button>
+        </motion.div>
+      </RoleBasedComponent>
+
+      {modalOpen && (
         <ModalContainer>
-        
-          <Modal text={'Add New Product'} type={modalType} handleClose={close}>
-            <ProductForm productList={products} setProductList={setProducts} handleClose={close}/>
-            </Modal>
-        
-      </ModalContainer>
+          <Modal text={"Agregar Nuevo Producto"} type={modalType} handleClose={close}>
+            <ProductForm productList={products} setProductList={setProducts} handleClose={close} />
+          </Modal>
+        </ModalContainer>
       )}
 
       {/* Product Table */}
@@ -115,11 +104,11 @@ const Inventory: React.FC = () => {
         <table className="w-full">
           <thead className="bg-primary-600 text-white">
             <tr>
-              <th className="p-3 text-left">Name</th>
-              <th className="p-3 text-left">Category</th>
-              <th className="p-3 text-left">Price</th>
+              <th className="p-3 text-left">Nombre</th>
+              <th className="p-3 text-left">Categoría</th>
+              <th className="p-3 text-left">Precio</th>
               <th className="p-3 text-left">Stock</th>
-              <th className="p-3 text-left">Actions</th>
+              <th className="p-3 text-left">Acciones</th>
             </tr>
           </thead>
           <tbody>
@@ -136,18 +125,31 @@ const Inventory: React.FC = () => {
                 <td className="p-3">${product.price.toFixed(2)}</td>
                 <td className="p-3">{product.stock}</td>
                 <td className="p-3">
+                  {/* Todos pueden ver detalles */}
                   <button
-                    className="bg-secondary-500 hover:bg-secondary-600 text-white font-bold py-2 px-4 rounded mr-2"
-                    onClick={() => setEditingProduct(product)}
+                    className="bg-primary-500 hover:bg-primary-600 text-white font-bold py-2 px-4 rounded mr-2"
+                    onClick={() => alert(`Detalles de ${product.name}`)}
                   >
-                    Edit
+                    Ver
                   </button>
-                  <button
-                    className="bg-accent-500 hover:bg-accent-600 text-white font-bold py-2 px-4 rounded"
-                    onClick={() => handleDeleteProduct(product.id)}
-                  >
-                    Delete
-                  </button>
+
+                  {/* Solo los administradores pueden editar y eliminar */}
+                  <RoleBasedComponent requiredRole="admin">
+                    <>
+                      <button
+                        className="bg-secondary-500 hover:bg-secondary-600 text-white font-bold py-2 px-4 rounded mr-2"
+                        onClick={() => setEditingProduct(product)}
+                      >
+                        Editar
+                      </button>
+                      <button
+                        className="bg-accent-500 hover:bg-accent-600 text-white font-bold py-2 px-4 rounded"
+                        onClick={() => handleDeleteProduct(product.id)}
+                      >
+                        Eliminar
+                      </button>
+                    </>
+                  </RoleBasedComponent>
                 </td>
               </motion.tr>
             ))}
@@ -155,8 +157,8 @@ const Inventory: React.FC = () => {
         </table>
       </motion.div>
 
-      {/* Edit Product Modal */}
-      {editingProduct && (
+      {/* Edit Product Modal - Solo visible para administradores */}
+      {isAdmin && editingProduct && (
         <motion.div
           className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
           initial={{ opacity: 0 }}
@@ -170,11 +172,11 @@ const Inventory: React.FC = () => {
             animate={{ scale: 1 }}
             exit={{ scale: 0.9 }}
           >
-            <h2 className="text-2xl font-bold mb-4">Edit Product</h2>
+            <h2 className="text-2xl font-bold mb-4">Editar Producto</h2>
             <div className="grid grid-cols-2 gap-4">
               <input
                 type="text"
-                placeholder="Name"
+                placeholder="Nombre"
                 className="p-2 border rounded"
                 value={editingProduct.name}
                 onChange={(e) => setEditingProduct({ ...editingProduct, name: e.target.value })}
@@ -182,7 +184,7 @@ const Inventory: React.FC = () => {
               />
               <input
                 type="text"
-                placeholder="Category"
+                placeholder="Categoría"
                 className="p-2 border rounded"
                 value={editingProduct.category}
                 onChange={(e) => setEditingProduct({ ...editingProduct, category: e.target.value })}
@@ -190,10 +192,10 @@ const Inventory: React.FC = () => {
               />
               <input
                 type="number"
-                placeholder="Price"
+                placeholder="Precio"
                 className="p-2 border rounded"
                 value={editingProduct.price}
-                onChange={(e) => setEditingProduct({ ...editingProduct, price: parseFloat(e.target.value) })}
+                onChange={(e) => setEditingProduct({ ...editingProduct, price: Number.parseFloat(e.target.value) })}
                 required
               />
               <input
@@ -201,30 +203,28 @@ const Inventory: React.FC = () => {
                 placeholder="Stock"
                 className="p-2 border rounded"
                 value={editingProduct.stock}
-                onChange={(e) => setEditingProduct({ ...editingProduct, stock: parseInt(e.target.value) })}
+                onChange={(e) => setEditingProduct({ ...editingProduct, stock: Number.parseInt(e.target.value) })}
                 required
               />
             </div>
             <div className="mt-4 flex justify-end">
               <button type="submit" className="bg-primary-500 text-white p-2 rounded hover:bg-primary-600 mr-2">
-                Save Changes
+                Guardar Cambios
               </button>
               <button
                 type="button"
                 className="bg-gray-300 text-gray-800 p-2 rounded hover:bg-gray-400"
                 onClick={() => setEditingProduct(null)}
               >
-                Cancel
+                Cancelar
               </button>
             </div>
           </motion.form>
         </motion.div>
       )}
-      
     </div>
-  );
-};
+  )
+}
 
-
-export default Inventory;
+export default Inventory
 

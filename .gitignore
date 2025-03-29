@@ -2,3 +2,4 @@ backend/venv/
 frontend/node_modules/
 venv/
 .gitignore
+node_modules

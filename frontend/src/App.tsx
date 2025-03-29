@@ -8,17 +8,17 @@ import { Register } from './pages/Register';
 import Dashboard from './pages/AdminDashboard';
 import Inventory from './pages/inventory';
 import Orders from './pages/Orders';
-import Profile from './pages/Profile';
+import Profile from './pages/profile/Profile';
 import AdminDashboard from './pages/AdminDashboard';
 import PrivateRoute from './components/PrivateRoute';
+import './resize-observer-polyfill';
+
 
 const App: React.FC = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
-      setIsAuthenticated(true);
+      // User is authenticated, perform any necessary actions here
     }
   }, []);
 

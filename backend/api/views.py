@@ -1,25 +1,39 @@
-from rest_framework import viewsets, permissions, status
+# api/views.py
+from rest_framework import status, viewsets
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from django.contrib.auth.models import User
-from .models import Product, Order
-from .serializers import UserSerializer, ProductSerializer, OrderSerializer, RegisterSerializer
+from django.contrib.auth import get_user_model
+from .models import Product, Order  # Asegúrate de importar los modelos
+from .serializers import RegisterSerializer, UserSerializer, ProductSerializer, OrderSerializer
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 
-class ProductViewSet(viewsets.ModelViewSet):
-    queryset = Product.objects.all()
-    serializer_class = ProductSerializer
-    permission_classes = [IsAuthenticated]
+User = get_user_model()
 
-class OrderViewSet(viewsets.ModelViewSet):
-    queryset = Order.objects.all()
-    serializer_class = OrderSerializer
-    permission_classes = [IsAuthenticated]
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    username_field = 'email'  # Usar email como campo de identificación
+    
+    def validate(self, attrs):
+        # Llamar al método validate del padre
+        data = super().validate(attrs)
+        
+        # Añadir datos del usuario a la respuesta
+        user = self.user
+        data['user'] = {
+            'id': user.id,
+            'username': user.username,
+            'email': user.email,
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            'role': user.role
+        }
+        
+        return data
 
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
-
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def register_user(request):
@@ -62,17 +76,29 @@ def dashboard_data(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def product(request):
-    name = Product.objects.count()
-    category = Product.objects.count()
-    price = product.price
-    stock = Product.objects.filter(quantity__lt=10).count()
-
+    products_count = Product.objects.count()
+    
+    # Ejemplo para obtener datos de un producto (si existe)
+    sample_product = Product.objects.first()
+    
     data = {
-        'name': 'sample',
-        'category': 'sample',
-        'price': 'sample',
-        'stock': 'sample'
+        'name': sample_product.name if sample_product else 'No products',
+        'category': sample_product.category if sample_product else 'No products',
+        'price': sample_product.price if sample_product else 0,
+        'stock': sample_product.quantity if sample_product else 0
     }
     return Response(data)
 
+# Añade aquí las clases ViewSet que mencionaste anteriormente
+class ProductViewSet(viewsets.ModelViewSet):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+    permission_classes = [IsAuthenticated]
 
+class OrderViewSet(viewsets.ModelViewSet):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
