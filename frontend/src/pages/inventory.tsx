@@ -130,7 +130,7 @@ const Inventory: React.FC = () => {
                     className="bg-primary-500 hover:bg-primary-600 text-white font-bold py-2 px-4 rounded mr-2"
                     onClick={() => alert(`Detalles de ${product.name}`)}
                   >
-                    Ver
+                    See
                   </button>
 
                   {/* Only Admins can edit and delete */}
