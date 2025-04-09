@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from api.views import ProductViewSet, OrderViewSet, register_user, user_profile, dashboard_data, product
+from api.views import ProductViewSet, OrderViewSet, register_user, user_profile, dashboard_data, products_list
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from django.http import HttpResponse
 
@@ -24,7 +24,7 @@ urlpatterns = [
     path('api/auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/profile/', user_profile, name='user_profile'),
     path('api/dashboard/', dashboard_data, name='dashboard_data'),
-    path('api/product/', product, name='product'),
+    path('api/product/', products_list, name='product'),
     
   
 ]

@@ -1,30 +1,56 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 
 const Navbar: React.FC = () => {
   const { isAuthenticated, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    logout();
+    navigate('/');
+  };
 
   return (
-    <nav className="bg-blue-600 text-blue p-4">
+    <nav className="bg-gradient-to-r from-primary-600 to-secondary-600 p-4 shadow-lg">
       <div className="container mx-auto flex justify-between items-center">
-        <Link to="/" className="text-2xl font-bold">Stock Master</Link>
-        <div className="space-x-4">
+        <motion.div
+          initial={{ opacity: 0, x: -50 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          {
+            isAuthenticated ? 
+            <Link to="/dashboard" className="text-white text-2xl font-bold">StockMaster</Link>
+            :
+            <Link to="/" className="text-white text-2xl font-bold">StockMaster</Link>
+            }
+        </motion.div>
+        <motion.ul
+          className="flex space-x-4"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
           {isAuthenticated ? (
             <>
-              <Link to="/dashboard" className="hover:text-blue-200">Dashboard</Link>
-              <Link to="/inventory" className="hover:text-blue-200">Inventory</Link>
-              <Link to="/orders" className="hover:text-blue-200">Orders</Link>
-              <Link to="/profile" className="hover:text-blue-200">Profile</Link>
-              <button onClick={logout} className="bg-red-500 hover:bg-red-600 px-3 py-1 rounded">Logout</button>
+              <li><Link to="/dashboard" className="text-white hover:text-accent-300 transition duration-300">Dashboard</Link></li>
+              <li><Link to="/inventory" className="text-white hover:text-accent-300 transition duration-300">Inventory</Link></li>
+              <li><Link to="/orders" className="text-white hover:text-accent-300 transition duration-300">Orders</Link></li>
+              <li><Link to="/profile" className="text-white hover:text-accent-300 transition duration-300">Profile</Link></li>
+              <li><button onClick={handleLogout} className="text-white hover:text-accent-300 transition duration-300">Logout</button></li>
             </>
           ) : (
             <>
-              <Link to="/login" className="hover:text-blue-200">Login</Link>
-              <Link to="/register" className="hover:text-blue-200">Register</Link>
+              <li><Link to="/login" className="text-white hover:text-accent-300 transition duration-300">Login</Link></li>
+              <li><Link to="/register" className="text-white hover:text-accent-300 transition duration-300">Register</Link></li>
             </>
           )}
-        </div>
+        </motion.ul>
       </div>
     </nav>
   );

@@ -7,7 +7,7 @@ from .views import (
     register_user, 
     user_profile, 
     dashboard_data, 
-    product,
+    products_list,
     CustomTokenObtainPairView 
 )
 
@@ -25,5 +25,5 @@ urlpatterns = [
     
     path('users/profile/', user_profile, name='user_profile'),  
     path('dashboard/data/', dashboard_data, name='dashboard_data'),
-    path('product/', product, name='product'),
+    path('products/list/', products_list, name='products_list'),
 ]
